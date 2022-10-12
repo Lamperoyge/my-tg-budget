@@ -3,14 +3,6 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 
 const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID);
 
-try {
-  doc.useServiceAccountAuth({
-    client_email: process.env.GOOGLE_PRIVATE_EMAIL,
-    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/gm, '\n'),
-  });
-} catch (error) {
-  console.log(error, 'error');
-}
 
 const loadSheet = async () => {
   await doc.loadInfo();
@@ -125,9 +117,18 @@ const handleCreate = async (chatId, sentMessage) => {
   }
 };
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   const chatId = req.body.message.chat.id;
   const sentMessage = req.body.message.text;
-  handleCreate(chatId, sentMessage);
+  try {
+    await doc.useServiceAccountAuth({
+      client_email: process.env.GOOGLE_PRIVATE_EMAIL,
+      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/gm, '\n'),
+    });
+  } catch (error) {
+    console.log(error, 'error');
+  }
+  
+  await handleCreate(chatId, sentMessage);
   res.send('ok');
 }
