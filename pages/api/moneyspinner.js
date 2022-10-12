@@ -120,6 +120,9 @@ const handleCreate = async (chatId, sentMessage) => {
 export default async function handler(req, res) {
   const chatId = req.body.message.chat.id;
   const sentMessage = req.body.message.text;
+  if(req.body.message.from.username !== 'hel5252') {
+    return
+  }
   try {
     await doc.useServiceAccountAuth({
       client_email: process.env.GOOGLE_PRIVATE_EMAIL,
